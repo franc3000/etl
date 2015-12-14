@@ -1,0 +1,32 @@
+Use `make run` to run all of the tasks.
+
+The general structure is:
+
+S3 ->
+
+extract.ExtractDeeds -> 
+csv files ->
+load.LoadDeeds -> 
+"<deed>" tables (csvs removed on EC2 once tables are loaded) ->
+load_clean.LoadCleanDeeds -> 
+"<deed>_clean" tables ->
+
+* deed_append.DeedAppend (depends only on LoadCleanDeeds) -> 
+"<deed>_clean_append" tables ->
+
+* buyer_count.BuyerCount (depends only on LoadCleanDeeds) -> 
+"<deed>_clean_buyercount" tables ->
+all_luigi_tasks.AllLuigiTasks (dummy Task that gets everything else running)
+
+config.py, db.py, and db_table_target.py were also created
+
+I ran into some minor issues that I solved, but I want to double check that my solution is what you wanted:
+
+- In the deed append SQL, "consumerview.activity_datedwelling_type" doesn't exist but "consumerview.dwelling_type" does so I used that instead.
+
+- I put the output of the "append deed" into a new table named "<deed file name>_clean_append". Let me know if that's not what you want.
+
+- The pandas.to_sql() function used with "if_exists=replace" automatically detects and sets column types for the deed table, so I left those types for now (see DESCRIBE deed_20151030;) I can convert them all to VARCHAR(200) if you need me to.
+
+- If one of the deed tables already exists in the database, it is left alone and NOT overridden. This seems to be how Luigi is made to be used. If you want the tables dropped and recreated every time, I could modify the code to do that.
+
