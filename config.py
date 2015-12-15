@@ -1,11 +1,18 @@
 #!/usr/bin/env python2.7
+import csv
 import coloredlogs
 import logging
 coloredlogs.install()
 
 # Amazon Config
-ACCESS_KEY = 'AKIAIJRD45NMHVNQQPWA'
-SECRET_ACCESS_KEY = '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'
+# read in the credentials file
+with open('credentials.csv') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        # print(row['User Name'], row['Access Key Id'], row['Secret Access Key'])
+        ACCESS_KEY = row['Access Key Id']
+        SECRET_ACCESS_KEY = row['Secret Access Key']
+
 REGION_NAME = 'us-west-2'
 
 # Amazon S3
